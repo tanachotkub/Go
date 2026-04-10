@@ -1,0 +1,51 @@
+basePath: /api
+definitions:
+  models.Member:
+    properties:
+      id:
+        example: 1
+        type: integer
+      password:
+        example: secret123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  title: Member API with Fiber and GORM
+  version: "1.0"
+paths:
+  /members:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Member'
+            type: array
+      summary: Get all members
+      tags:
+      - Members
+  /members/{id}:
+    get:
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Member'
+      summary: Get member by ID
+      tags:
+      - Members
+swagger: "2.0"
