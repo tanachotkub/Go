@@ -75,6 +75,9 @@ go mod tidy
 ```powershell
 # สำหรับ Windows (PowerShell)
 & "$(go env GOPATH)\bin\swag" init -g cmd/main.go
+
+# สำหรับ Windows (PowerShell)
+swag init -g cmd/main.go
 ```
 
 เมื่อสำเร็จจะมีโฟลเดอร์ `docs/` ถูกสร้างหรืออัปเดต
@@ -199,4 +202,3 @@ app.Use(cors.New())
 
 ---
 
-💡 พร้อมใช้งานและขยายต่อได้ทันที 🚀

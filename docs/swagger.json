@@ -28,6 +28,52 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "สร้างสมาชิกใหม่โดยรับข้อมูลจาก JSON body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Create a new member",
+                "parameters": [
+                    {
+                        "description": "Member Data (username and password)",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Could not create member",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/members/{id}": {
@@ -53,6 +99,66 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "แก้ไขข้อมูลสมาชิก (เช่น เปลี่ยน Password) ตาม ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Update a member",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Member ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New Member Data",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ลบสมาชิกออกจากระบบตาม ID",
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Delete a member",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Member ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
             }
         }
     },
@@ -60,17 +166,15 @@
         "models.Member": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
+                "username": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "johndoe"
                 },
                 "password": {
                     "type": "string",
+                    "x-order": "2",
                     "example": "secret123"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "johndoe"
                 }
             }
         }

@@ -1,0 +1,35 @@
+# 1. Environment Variables (สำคัญที่สุด!)
+.env
+*.env.local
+
+# 2. Go Binaries & Executables
+# (ไฟล์ที่ได้จากการ build ไม่ควรเอาขึ้น เพราะมันรันได้เฉพาะเครื่อง)
+/main
+/main.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# 3. Go Dependencies
+# (ปกติเราใช้ go.mod/go.sum อยู่แล้ว ไม่ต้องเอาโฟลเดอร์ vendor ขึ้น)
+vendor/
+
+# 4. OS Specific Files
+.DS_Store
+Thumbs.db
+
+# 5. IDE Specific Files (VS Code, Goland)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 6. Swagger Auto-generated (แล้วแต่ความชอบ)
+# บางคนชอบเอาขึ้นเพื่อให้คนอื่นดูได้เลย บางคนไม่เอาขึ้นเพราะมัน gen ใหม่ได้
+# docs/
+
+# 7. Log files
+*.log

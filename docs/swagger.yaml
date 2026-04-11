@@ -2,15 +2,14 @@ basePath: /api
 definitions:
   models.Member:
     properties:
-      id:
-        example: 1
-        type: integer
       password:
         example: secret123
         type: string
+        x-order: "2"
       username:
         example: johndoe
         type: string
+        x-order: "1"
     type: object
 host: localhost:3000
 info:
@@ -32,7 +31,52 @@ paths:
       summary: Get all members
       tags:
       - Members
+    post:
+      consumes:
+      - application/json
+      description: สร้างสมาชิกใหม่โดยรับข้อมูลจาก JSON body
+      parameters:
+      - description: Member Data (username and password)
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/models.Member'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Member'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Could not create member
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new member
+      tags:
+      - Members
   /members/{id}:
+    delete:
+      description: ลบสมาชิกออกจากระบบตาม ID
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Delete a member
+      tags:
+      - Members
     get:
       parameters:
       - description: Member ID
@@ -46,6 +90,32 @@ paths:
           schema:
             $ref: '#/definitions/models.Member'
       summary: Get member by ID
+      tags:
+      - Members
+    put:
+      consumes:
+      - application/json
+      description: แก้ไขข้อมูลสมาชิก (เช่น เปลี่ยน Password) ตาม ID
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New Member Data
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/models.Member'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Member'
+      summary: Update a member
       tags:
       - Members
 swagger: "2.0"

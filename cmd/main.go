@@ -1,14 +1,17 @@
+// main.go
 package main
 
 import (
 	_ "Go/docs"
 	"Go/handlers"
+	"Go/middlewares" // Import เพิ่ม
+	"Go/routes"      // Import เพิ่ม
 	"Go/services"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors" // 1. Import ตัวนี้เข้าไป
-	"github.com/gofiber/swagger"
+	"github.com/joho/godotenv" // Library สำหรับ .env
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -18,34 +21,35 @@ import (
 // @host localhost:3000
 // @BasePath /api
 func main() {
-	// 1. Connection Database
-	dsn := "root:1234@tcp(127.0.0.1:3306)/kenys?charset=utf8mb4&parseTime=True&loc=Local"
+	// 1. โหลดไฟล์ .env
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// 2. ดึงค่าจาก .env
+	dsn := os.Getenv("DB_DSN")
+	port := os.Getenv("PORT")
+
+	// 3. เชื่อมต่อ Database
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database")
 	}
 
-	// 2. Setup Dependency
+	// 4. Setup Dependency
 	memberSrv := services.MemberService{DB: db}
 	memberHdl := handlers.MemberHandler{Service: memberSrv}
 
-	// 3. Setup Fiber
+	// 5. Setup Fiber
 	app := fiber.New()
 
-	// ใช้ CORS Middleware (วางไว้ก่อน Routes เสมอ)
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*", // อนุญาตทุก Domain (เหมาะสำหรับช่วงพัฒนา)
-		AllowHeaders: "Origin, Content-Type, Accept",
-		AllowMethods: "GET, POST, PUT, DELETE",
-	}))
+	// 6. ใช้ Middleware จากโฟลเดอร์ใหม่
+	middlewares.SetupCORS(app)
 
-	// Swagger Route
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	// 7. ใช้ Routes จากโฟลเดอร์ใหม่ (ส่ง Handler เข้าไปด้วย)
+	routes.SetupRoutes(app, &memberHdl)
 
-	// API Routes
-	api := app.Group("/api")
-	api.Get("/members", memberHdl.GetMembers)
-	api.Get("/members/:id", memberHdl.GetMemberByID)
-
-	log.Fatal(app.Listen(":3000"))
+	// 8. เริ่มรัน Server ตาม Port ใน .env
+	log.Fatal(app.Listen(":" + port))
 }
