@@ -13,6 +13,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -49,7 +50,21 @@ func main() {
 	memberHdl := handlers.MemberHandler{Service: memberSrv}
 
 	//Setup Fiber
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			if e, ok := err.(*fiber.Error); ok {
+				code = e.Code
+			}
+
+			return c.Status(code).JSON(fiber.Map{
+				"success": false,
+				"message": err.Error(),
+			})
+		},
+	})
+	app.Use(recover.New())
 
 	//เพิ่ม Logger
 	app.Use(logger.New(logger.Config{
