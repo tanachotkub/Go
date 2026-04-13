@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
@@ -72,6 +73,9 @@ func main() {
 		TimeFormat: "2006-01-02 15:04:05",
 		TimeZone:   "Asia/Bangkok",
 	}))
+
+	// ป้องกัน HTTP Header Attacks
+	app.Use(helmet.New())
 
 	//ใช้ Middleware จากโฟลเดอร์ใหม่
 	middlewares.SetupCORS(app)
