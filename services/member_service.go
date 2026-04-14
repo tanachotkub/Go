@@ -1,7 +1,12 @@
 package services
 
 import (
+	database "Go/config"
 	"Go/models"
+	"context"
+	"encoding/json"
+	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -10,10 +15,40 @@ type MemberService struct {
 	DB *gorm.DB
 }
 
+//	func (s *MemberService) GetAllMembers() ([]models.Member, error) {
+//		var members []models.Member
+//		result := s.DB.Find(&members)
+//		return members, result.Error
+//	}
 func (s *MemberService) GetAllMembers() ([]models.Member, error) {
+	ctx := context.Background()
+	cacheKey := "members:all"
 	var members []models.Member
+
+	// 1. ลองดึงข้อมูลจาก Redis
+	val, err := database.RedisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		if err := json.Unmarshal([]byte(val), &members); err == nil {
+			// ✅ จุดที่ 1: แจ้งว่าดึงข้อมูลจาก Redis สำเร็จ
+			log.Println("⚡ Redis: Cache Hit (Fetched from Redis)")
+			return members, nil
+		}
+	}
+
+	// 2. ถ้าไม่เจอใน Cache (Cache Miss)
+	log.Println("🐢 Redis: Cache Miss (Fetching from MySQL...)") // ✅ จุดที่ 2: แจ้งว่าต้องไปพึ่ง MySQL
+
 	result := s.DB.Find(&members)
-	return members, result.Error
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// 3. เก็บลง Redis พร้อมตั้งเวลา
+	data, _ := json.Marshal(members)
+	database.RedisClient.Set(ctx, cacheKey, data, 10*time.Minute)
+	log.Println("💾 Redis: Data cached successfully") // ✅ จุดที่ 3: ยืนยันว่าเก็บลง Cache แล้ว
+
+	return members, nil
 }
 
 func (s *MemberService) GetMemberByID(id int) (models.Member, error) {

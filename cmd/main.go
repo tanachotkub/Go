@@ -2,6 +2,7 @@
 package main
 
 import (
+	database "Go/config"
 	_ "Go/docs"
 	"Go/handlers"
 	"Go/middlewares"
@@ -39,6 +40,13 @@ func main() {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database")
+	}
+
+	//เชื่อมต่อ Redis
+	if err := database.ConnectRedis(); err != nil {
+		log.Printf("Redis Connect Warning: %v", err)
+	} else {
+		log.Println("Redis Connected Successfully!")
 	}
 
 	//เรียกใช้การจัดกลุ่ม Migration จากแพ็กเกจ models
