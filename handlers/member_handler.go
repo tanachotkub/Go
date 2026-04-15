@@ -101,6 +101,31 @@ func (h *MemberHandler) CreateMember(c *fiber.Ctx) error {
 	})
 }
 
+// Login godoc
+// @Summary      Login to get JWT Token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        login  body      models.LoginRequest  true  "Login Credentials"
+// @Success      200    {object}  models.LoginResponse
+// @Router       /login [post]
+func (h *MemberHandler) LoginMember(c *fiber.Ctx) error {
+	var req models.LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(map[string]any{"error": "ข้อมูลไม่ถูกต้อง"})
+	}
+
+	token, member, err := h.Service.LoginMember(req)
+	if err != nil {
+		return c.Status(401).JSON(map[string]any{"error": err.Error()})
+	}
+
+	return c.JSON(models.LoginResponse{
+		Token:  token,
+		Member: member,
+	})
+}
+
 // UpdateMember godoc
 // @Summary      Update a member
 // @Description  แก้ไขข้อมูลสมาชิก (เช่น เปลี่ยน Password) ตาม ID

@@ -5,10 +5,14 @@ import (
 	"Go/models"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -91,6 +95,34 @@ func (s *MemberService) GetMemberByID(id int) (models.Member, error) {
 func (s *MemberService) CreateMember(member *models.Member) error {
 	result := s.DB.Create(&member)
 	return result.Error
+}
+
+func (s *MemberService) LoginMember(req models.LoginRequest) (string, models.Member, error) {
+	var member models.Member
+	// 1. ตรวจสอบว่ามี Username นี้ไหม
+	if err := s.DB.Where("username = ?", req.Username).First(&member).Error; err != nil {
+		return "", member, errors.New("ไม่พบชื่อผู้ใช้งานนี้")
+	}
+
+	// 2. ตรวจสอบ Password (เปรียบเทียบ Hash)
+	err := bcrypt.CompareHashAndPassword([]byte(member.Password), []byte(req.Password))
+	if err != nil {
+		return "", member, errors.New("รหัสผ่านไม่ถูกต้อง")
+	}
+
+	// 3. สร้าง JWT Token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id":  member.ID,
+		"username": member.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(), // หมดอายุใน 24 ชม.
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", member, err
+	}
+
+	return tokenString, member, nil
 }
 
 func (s *MemberService) GetMemberByUsername(username string) (*models.Member, error) {

@@ -15,6 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login to get JWT Token",
+                "parameters": [
+                    {
+                        "description": "Login Credentials",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/members": {
             "get": {
                 "produces": [
@@ -170,6 +203,32 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "admin"
+                },
+                "password": {
+                    "type": "string",
+                    "x-order": "2",
+                    "example": "123456"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "member": {
+                    "$ref": "#/definitions/models.Member"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Member": {
             "type": "object",
             "properties": {
