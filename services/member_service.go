@@ -5,6 +5,7 @@ import (
 	"Go/models"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -51,10 +52,40 @@ func (s *MemberService) GetAllMembers() ([]models.Member, error) {
 	return members, nil
 }
 
+// func (s *MemberService) GetMemberByID(id int) (models.Member, error) {
+// 	var member models.Member
+// 	result := s.DB.First(&member, id)
+// 	return member, result.Error
+// }
+
 func (s *MemberService) GetMemberByID(id int) (models.Member, error) {
+	ctx := context.Background()
+	// สร้าง Key แยกตาม ID เช่น member:5
+	cacheKey := fmt.Sprintf("member:%d", id)
 	var member models.Member
+
+	// 1. ลองดึงข้อมูลจาก Redis ดูก่อน
+	val, err := database.RedisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		if err := json.Unmarshal([]byte(val), &member); err == nil {
+			log.Printf("⚡ Redis: Cache Hit for ID %d", id)
+			return member, nil
+		}
+	}
+
+	// 2. ถ้าไม่เจอใน Cache -> ไปดึงจาก MySQL
+	log.Printf("🐢 Redis: Cache Miss for ID %d (Fetching from MySQL...)", id)
 	result := s.DB.First(&member, id)
-	return member, result.Error
+	if result.Error != nil {
+		return member, result.Error
+	}
+
+	// 3. เก็บลง Redis แยกตาม ID
+	data, _ := json.Marshal(member)
+	database.RedisClient.Set(ctx, cacheKey, data, 10*time.Minute)
+	log.Printf("| 💾 Redis: Cached member ID %d", id)
+
+	return member, nil
 }
 
 func (s *MemberService) CreateMember(member *models.Member) error {
