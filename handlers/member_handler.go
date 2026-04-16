@@ -19,6 +19,7 @@ type MemberHandler struct {
 // @Tags         Members
 // @Produce      json
 // @Success      200  {array}   models.Member
+// @Security     BearerAuth
 // @Router       /members [get]
 func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
 	members, err := h.Service.GetAllMembers()
@@ -33,6 +34,7 @@ func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
 // @Tags         Members
 // @Param        id   path      int  true  "Member ID"
 // @Success      200  {object}  models.Member
+// @Security     BearerAuth
 // @Router       /members/{id} [get]
 func (h *MemberHandler) GetMemberByID(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
@@ -135,6 +137,7 @@ func (h *MemberHandler) LoginMember(c *fiber.Ctx) error {
 // @Param        id      path      int                   true  "Member ID"
 // @Param        member  body      models.Member  true  "New Member Data"
 // @Success      200     {object}  models.Member
+// @Security     BearerAuth
 // @Router       /members/{id} [put]
 func (h *MemberHandler) UpdateMember(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
@@ -171,6 +174,7 @@ func (h *MemberHandler) UpdateMember(c *fiber.Ctx) error {
 // @Tags         Members
 // @Param        id   path      int  true  "Member ID"
 // @Success      204  {object}  nil
+// @Security     BearerAuth
 // @Router       /members/{id} [delete]
 func (h *MemberHandler) DeleteMember(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")

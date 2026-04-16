@@ -3,6 +3,7 @@ package routes
 
 import (
 	"Go/handlers"
+	"Go/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -12,12 +13,16 @@ func SetupRoutes(app *fiber.App, memberHdl *handlers.MemberHandler) {
 	// Swagger Route
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// API Group
 	api := app.Group("/api")
-	api.Get("/members", memberHdl.GetMembers)
-	api.Get("/members/:id", memberHdl.GetMemberByID)
-	api.Post("/members", memberHdl.CreateMember)
+
+	//(Public)
 	api.Post("/login", memberHdl.LoginMember)
-	api.Put("/members/:id", memberHdl.UpdateMember)
-	api.Delete("/members/:id", memberHdl.DeleteMember)
+	api.Post("/register", memberHdl.CreateMember)
+
+	//(Protected)
+	members := api.Group("/members", middlewares.JWTMiddleware)
+	members.Get("/", memberHdl.GetMembers)
+	members.Get("/:id", memberHdl.GetMemberByID)
+	members.Put("/:id", memberHdl.UpdateMember)
+	members.Delete("/:id", memberHdl.DeleteMember)
 }

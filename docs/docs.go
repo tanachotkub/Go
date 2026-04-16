@@ -50,6 +50,11 @@ const docTemplate = `{
         },
         "/members": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -118,6 +123,11 @@ const docTemplate = `{
         },
         "/members/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "Members"
                 ],
@@ -141,6 +151,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "แก้ไขข้อมูลสมาชิก (เช่น เปลี่ยน Password) ตาม ID",
                 "consumes": [
                     "application/json"
@@ -180,6 +195,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "ลบสมาชิกออกจากระบบตาม ID",
                 "tags": [
                     "Members"
@@ -236,13 +256,16 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1",
                     "example": "johndoe"
-                },
-                "password": {
-                    "type": "string",
-                    "x-order": "2",
-                    "example": "secret123"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "ใส่ Token ในรูปแบบ: Bearer \u003cyour_token\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -252,7 +275,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:3000",
 	BasePath:         "/api",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "Member API with Fiber and GORM",
 	Description:      "",
 	InfoInstanceName: "swagger",

@@ -20,10 +20,6 @@ definitions:
     type: object
   models.Member:
     properties:
-      password:
-        example: secret123
-        type: string
-        x-order: "2"
       username:
         example: johndoe
         type: string
@@ -67,6 +63,8 @@ paths:
             items:
               $ref: '#/definitions/models.Member'
             type: array
+      security:
+      - BearerAuth: []
       summary: Get all members
       tags:
       - Members
@@ -113,6 +111,8 @@ paths:
       responses:
         "204":
           description: No Content
+      security:
+      - BearerAuth: []
       summary: Delete a member
       tags:
       - Members
@@ -128,6 +128,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Member'
+      security:
+      - BearerAuth: []
       summary: Get member by ID
       tags:
       - Members
@@ -154,7 +156,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Member'
+      security:
+      - BearerAuth: []
       summary: Update a member
       tags:
       - Members
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: 'ใส่ Token ในรูปแบบ: Bearer <your_token>'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

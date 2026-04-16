@@ -23,8 +23,16 @@ import (
 
 // @title Member API with Fiber and GORM
 // @version 1.0
+
+// @securityDefinitions.apiKey BearerAuth
+// @in                         header
+// @name                       Authorization
+// @description                ใส่ Token ในรูปแบบ: Bearer <your_token>
+
 // @host localhost:3000
 // @BasePath /api
+// @schemes   http https
+
 func main() {
 	//โหลดไฟล์ .env
 	err := godotenv.Load()
