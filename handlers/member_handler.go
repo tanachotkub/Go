@@ -52,13 +52,13 @@ func (h *MemberHandler) GetMemberByID(c *fiber.Ctx) error {
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
-// @Param        member  body      models.Member  true  "Member Data (username and password)"
+// @Param        member  body      models.RegisterRequest  true  "Member Data"
 // @Success      201     {object}  models.Member
 // @Failure      400     {object}  map[string]any "Invalid request body"
 // @Failure      500     {object}  map[string]any "Could not create member"
-// @Router       /members [post]
+// @Router /register [post]
 func (h *MemberHandler) CreateMember(c *fiber.Ctx) error {
-	req := new(models.Member)
+	req := new(models.RegisterRequest)
 
 	// 1. Body Parser
 	if err := c.BodyParser(req); err != nil {

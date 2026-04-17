@@ -12,6 +12,11 @@ type LoginRequest struct {
 	Password string `json:"password" example:"123456" extensions:"x-order=2"`
 }
 
+type RegisterRequest struct {
+	Username string `json:"username" example:"admin" extensions:"x-order=1"`
+	Password string `json:"password" example:"123456" extensions:"x-order=2"`
+}
+
 type LoginResponse struct {
 	Token  string `json:"token"`
 	Member Member `json:"member"`

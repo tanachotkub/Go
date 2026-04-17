@@ -92,11 +92,6 @@ func (s *MemberService) GetMemberByID(id int) (models.Member, error) {
 	return member, nil
 }
 
-func (s *MemberService) CreateMember(member *models.Member) error {
-	result := s.DB.Create(&member)
-	return result.Error
-}
-
 func (s *MemberService) LoginMember(req models.LoginRequest) (string, models.Member, error) {
 	var member models.Member
 	// 1. ตรวจสอบว่ามี Username นี้ไหม
@@ -136,12 +131,61 @@ func (s *MemberService) GetMemberByUsername(username string) (*models.Member, er
 	return &member, nil
 }
 
+// func (s *MemberService) CreateMember(member *models.Member) error {
+// 	result := s.DB.Create(&member)
+// 	return result.Error
+// }
+
+// // UpdateMember อัปเดตข้อมูลสมาชิก
+// func (s *MemberService) UpdateMember(member *models.Member) error {
+// 	return s.DB.Save(member).Error
+// }
+
+// // DeleteMember ลบสมาชิกตาม ID
+// func (s *MemberService) DeleteMember(id int) error {
+// 	return s.DB.Delete(&models.Member{}, id).Error
+// }
+
+// CreateMember สร้างสมาชิกใหม่ (รับเป็น Member Entity)
+func (s *MemberService) CreateMember(member *models.Member) error {
+	// บันทึกลง DB (GORM จะรู้เองว่าต้องลงตาราง members)
+	result := s.DB.Create(member)
+	if result.Error == nil {
+		// ล้าง Cache เมื่อมีการเพิ่มข้อมูลใหม่
+		s.clearMemberCache(0)
+	}
+	return result.Error
+}
+
 // UpdateMember อัปเดตข้อมูลสมาชิก
 func (s *MemberService) UpdateMember(member *models.Member) error {
-	return s.DB.Save(member).Error
+	err := s.DB.Save(member).Error
+	if err == nil {
+		// 🟢 ลบทั้ง Cache ของคนนี้ และรายการรวม
+		s.clearMemberCache(member.ID)
+	}
+	return err
 }
 
 // DeleteMember ลบสมาชิกตาม ID
 func (s *MemberService) DeleteMember(id int) error {
-	return s.DB.Delete(&models.Member{}, id).Error
+	err := s.DB.Delete(&models.Member{}, id).Error
+	if err == nil {
+		// 🟢 ลบทั้ง Cache ของคนนี้ และรายการรวม
+		s.clearMemberCache(id)
+	}
+	return err
+}
+
+// 💡 สร้างฟังก์ชันช่วยลบ Cache เพื่อลดการเขียนโค้ดซ้ำ (Helper Function)
+func (s *MemberService) clearMemberCache(id int) {
+	ctx := context.Background()
+	// ลบ Cache รายการทั้งหมดเสมอเมื่อมีการเปลี่ยนแปลง
+	database.RedisClient.Del(ctx, "members:all")
+
+	// ถ้ามี ID ส่งมา (Update/Delete) ให้ลบ Cache รายบุคคลด้วย
+	if id > 0 {
+		database.RedisClient.Del(ctx, fmt.Sprintf("member:%d", id))
+	}
+	log.Println("🧹 Redis: Cache invalidated after data change")
 }
