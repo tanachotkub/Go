@@ -49,7 +49,7 @@ func (h *MemberHandler) GetMemberByID(c *fiber.Ctx) error {
 // CreateMember godoc
 // @Summary      Create a new member
 // @Description  สร้างสมาชิกใหม่โดยรับข้อมูลจาก JSON body
-// @Tags         Members
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        member  body      models.Member  true  "Member Data (username and password)"

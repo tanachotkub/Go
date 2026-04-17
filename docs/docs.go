@@ -83,7 +83,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Members"
+                    "Auth"
                 ],
                 "summary": "Create a new member",
                 "parameters": [

@@ -98,7 +98,7 @@ paths:
             type: object
       summary: Create a new member
       tags:
-      - Members
+      - Auth
   /members/{id}:
     delete:
       description: ลบสมาชิกออกจากระบบตาม ID
